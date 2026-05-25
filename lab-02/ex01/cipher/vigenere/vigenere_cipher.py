@@ -1,6 +1,6 @@
 class VigenereCipher:
     def __init__(self):
-        # Tự định nghĩa trực tiếp bảng chữ cái tiếng Anh viết hoa chuẩn
+        # Định nghĩa trực tiếp bảng chữ cái để tránh lỗi Circular Import
         self.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
     def encrypt_text(self, plain_text: str, key: str) -> str:
