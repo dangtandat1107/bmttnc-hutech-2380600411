@@ -4,7 +4,7 @@ import os
 # Ép Python tìm kiếm module bên trong thư mục ex01 để tránh lỗi ModuleNotFoundError
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'ex01')))
 
-from flask import Flask, render_template, request, json
+from flask import Flask, render_template, request, jsonify
 from cipher.caesar import CaesarCipher
 from cipher.vigenere import VigenereCipher
 from cipher.railfence import RailFenceCipher
@@ -39,34 +39,24 @@ def caesar_decrypt():
     decrypted_text = Caesar.decrypt_text(text, key)
     return f"text: {text}<br/>key: {key}<br/>decrypted text: {decrypted_text}"
 
-
-# --- BỔ SUNG THÊM 2 ROUTE API NÀY ĐỂ KẾT NỐI VỚI LAB-03 ---
-
+# --- API CAESAR FOR LAB-03 ---
 @app.route("/api/caesar/encrypt", methods=['POST'])
 def api_caesar_encrypt():
-    # Nhận dữ liệu JSON từ app lab-03 truyền sang
     data = request.get_json()
     text = data.get('plain_text')
     key = int(data.get('key'))
-    
     Caesar = CaesarCipher()
     encrypted_text = Caesar.encrypt_text(text, key)
-    
-    # Trả về kết quả dạng JSON đúng cấu trúc app lab-03 đang đợi
-    return {"encrypted_message": encrypted_text}
+    return jsonify({"encrypted_message": encrypted_text})
 
 @app.route("/api/caesar/decrypt", methods=['POST'])
 def api_caesar_decrypt():
-    # Nhận dữ liệu JSON từ app lab-03 truyền sang
     data = request.get_json()
     text = data.get('cipher_text')
     key = int(data.get('key'))
-    
     Caesar = CaesarCipher()
     decrypted_text = Caesar.decrypt_text(text, key)
-    
-    # Trả về kết quả dạng JSON đúng cấu trúc app lab-03 đang đợi
-    return {"decrypted_message": decrypted_text}
+    return jsonify({"decrypted_message": decrypted_text})
 
 
 # ==================== VIGENERE CIPHER ====================
@@ -90,6 +80,25 @@ def vigenere_decrypt():
     decrypted_text = vigenere.decrypt_text(text, key)
     return f"text: {text}<br/>key: {key}<br/>decrypted text: {decrypted_text}"
 
+# --- API VIGENERE FOR LAB-03 ---
+@app.route("/api/vigenere/encrypt", methods=['POST'])
+def api_vigenere_encrypt():
+    data = request.get_json()
+    text = data.get('plain_text')
+    key = data.get('key')
+    vigenere = VigenereCipher()
+    encrypted_text = vigenere.encrypt_text(text, key)
+    return jsonify({"encrypted_message": encrypted_text})
+
+@app.route("/api/vigenere/decrypt", methods=['POST'])
+def api_vigenere_decrypt():
+    data = request.get_json()
+    text = data.get('cipher_text')
+    key = data.get('key')
+    vigenere = VigenereCipher()
+    decrypted_text = vigenere.decrypt_text(text, key)
+    return jsonify({"decrypted_message": decrypted_text})
+
 
 # ==================== RAIL FENCE CIPHER ====================
 @app.route("/railfence")
@@ -112,9 +121,27 @@ def railfence_decrypt():
     decrypted_text = railfence.rail_fence_decrypt(text, key) 
     return f"text: {text}<br/>key: {key}<br/>decrypted text: {decrypted_text}"
 
+# --- API RAIL FENCE FOR LAB-03 ---
+@app.route("/api/railfence/encrypt", methods=['POST'])
+def api_railfence_encrypt():
+    data = request.get_json()
+    text = data.get('plain_text')
+    key = int(data.get('key'))
+    railfence = RailFenceCipher()
+    encrypted_text = railfence.rail_fence_encrypt(text, key)
+    return jsonify({"encrypted_message": encrypted_text})
+
+@app.route("/api/railfence/decrypt", methods=['POST'])
+def api_railfence_decrypt():
+    data = request.get_json()
+    text = data.get('cipher_text')
+    key = int(data.get('key'))
+    railfence = RailFenceCipher()
+    decrypted_text = railfence.rail_fence_decrypt(text, key)
+    return jsonify({"decrypted_message": decrypted_text})
+
 
 # ==================== PLAYFAIR CIPHER ====================
-# ĐÃ BỔ SUNG: Route hiển thị giao diện Playfair để không bị lỗi 404
 @app.route("/playfair")
 def playfair_page():
     return render_template('playfair.html')
@@ -124,8 +151,6 @@ def playfair_encrypt():
     text = request.form['inputPlainText']
     key = request.form['inputKeyPlain']
     playfair = PlayFairCipher()
-    
-    # Tạo ma trận từ Key trước khi thực hiện mã hóa theo đúng logic Playfair
     playfair_matrix = playfair.create_playfair_matrix(key)
     encrypted_text = playfair.playfair_encrypt(text, playfair_matrix) 
     return f"text: {text}<br/>key: {key}<br/>encrypted text: {encrypted_text}"
@@ -135,11 +160,30 @@ def playfair_decrypt():
     text = request.form['inputCipherText']
     key = request.form['inputKeyCipher']
     playfair = PlayFairCipher()
-    
-    # Tạo ma trận từ Key trước khi thực hiện giải mã
     playfair_matrix = playfair.create_playfair_matrix(key)
     decrypted_text = playfair.playfair_decrypt(text, playfair_matrix) 
     return f"text: {text}<br/>key: {key}<br/>decrypted text: {decrypted_text}"
+
+# --- API PLAYFAIR FOR LAB-03 ---
+@app.route("/api/playfair/encrypt", methods=['POST'])
+def api_playfair_encrypt():
+    data = request.get_json()
+    text = data.get('plain_text')
+    key = data.get('key')
+    playfair = PlayFairCipher()
+    playfair_matrix = playfair.create_playfair_matrix(key)
+    encrypted_text = playfair.playfair_encrypt(text, playfair_matrix)
+    return jsonify({"encrypted_message": encrypted_text})
+
+@app.route("/api/playfair/decrypt", methods=['POST'])
+def api_playfair_decrypt():
+    data = request.get_json()
+    text = data.get('cipher_text')
+    key = data.get('key')
+    playfair = PlayFairCipher()
+    playfair_matrix = playfair.create_playfair_matrix(key)
+    decrypted_text = playfair.playfair_decrypt(text, playfair_matrix)
+    return jsonify({"decrypted_message": decrypted_text})
 
 
 # ==================== MAIN RUNNER ====================
